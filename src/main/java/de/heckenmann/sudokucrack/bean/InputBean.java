@@ -6,21 +6,20 @@ package de.heckenmann.sudokucrack.bean;
 import java.io.Serializable;
 
 import javax.annotation.PostConstruct;
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.SessionScoped;
+import javax.enterprise.context.SessionScoped;
 import javax.faces.event.ActionEvent;
+import javax.inject.Named;
 
 import de.heckenmann.sudokucrack.Spielbrett;
 
-@ManagedBean
+@Named
 @SessionScoped
 public class InputBean implements Serializable {
 
-    private static final long serialVersionUID = 8991337861640011705L;
+    private static final long serialVersionUID = 1L;
 
-    private Spielbrett sb; // Das Spielbrett
-    // private ArrayList<Spielbrett> oldSearches = new ArrayList<>(); // Alte Lösungen
-    // private Spielbrett oldSelected; // Auswahl einer alten Lösung
+    // Das Spielbrett
+    private Spielbrett sb;
     private String[][] input;
     private boolean ready;
 
@@ -34,9 +33,12 @@ public class InputBean implements Serializable {
     /*
      * Listener
      */
-    // Beginnt mit der Suche
-    public synchronized void startSearching(final ActionEvent ae) {
+    /**
+     * Beginnt mit der Suche.
+     */
+    public void startSearching(final ActionEvent ae) {
         this.ready = false;
+        
         // Eingaben eintragen
         for (byte zeile = 0; zeile < 9; zeile++) {
             for (byte spalte = 0; spalte < 9; spalte++) {
@@ -45,23 +47,16 @@ public class InputBean implements Serializable {
                 }
             }
         }
-        //Thread t = new Thread(sb);
-        //t.start();
         this.sb.starteSuche();
     }
 
-    // Erzeugt ein neues Spielfeld
+    /**
+     * Erzeugt ein neues Spielfeld.
+     */
     public void reset(final ActionEvent ae) {
         // oldSearches.add(sb);
         init();
     }
-
-    //
-    /*public void setSelected() {
-        oldSearches.remove(oldSelected);
-        oldSearches.add(this.sb);
-        this.sb = oldSelected;
-    }*/
 
     /*
      * GETTER & SETTER
@@ -74,7 +69,7 @@ public class InputBean implements Serializable {
         this.sb = sb;
     }
 
-    public synchronized String[][] getInput() {
+    public String[][] getInput() {
         if (this.sb != null && !this.sb.isSuchend()) {
             for (byte zeile = 0; zeile < 9; zeile++) {
                 for (byte spalte = 0; spalte < 9; spalte++) {
@@ -90,11 +85,11 @@ public class InputBean implements Serializable {
         return this.input;
     }
 
-    public synchronized void setInput(final String[][] input) {
+    public void setInput(final String[][] input) {
         this.input = input;
     }
 
-    public synchronized boolean isReady() {
+    public boolean isReady() {
         return this.ready;
     }
 }

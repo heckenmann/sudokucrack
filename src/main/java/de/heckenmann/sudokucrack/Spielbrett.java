@@ -2,13 +2,12 @@ package de.heckenmann.sudokucrack;
 
 import java.io.Serializable;
 
-/*
- * Diese Klasse löst ein Sudoku-Rätsel
+/**
+ * Diese Klasse löst ein Sudoku-Rätsel. 
  */
-
 public class Spielbrett implements Serializable, Runnable {
 
-    private static final long serialVersionUID = 2766487800633540157L;
+    private static final long serialVersionUID = 1L;
 
     private byte[][] werte; // werte[zeile][spalte]; Die Werte, die die Positionen momentan haben; Nicht belegte Positionen haben den Wert -1; Datentyp byte, um möglichst wenig Aufwand zu betreiben und die größt mögliche Performance zu erreichen
     private boolean[][] moeglichkeitenZeile; // moeglichkeitenZeile[zeile][wert] besagt, dass in der Zeile der Wert noch möglich ist
@@ -17,7 +16,9 @@ public class Spielbrett implements Serializable, Runnable {
     private boolean suchend; // Gibt an, ob die Suche noch läuft.
     private boolean erfolgreich; // Gibt an, ob eine Lösung gefunden wurde
 
-    // Konstruktur
+    /**
+     * Konstruktur
+     */
     public Spielbrett() {
         init();
     }
@@ -25,8 +26,10 @@ public class Spielbrett implements Serializable, Runnable {
     /*
      * METHODEN
      */
-    // Mit init() kann das Spielbrett auch zurückgesetzt werden
-    public synchronized void init() {
+    /**
+     * Mit init() kann das Spielbrett auch zurückgesetzt werden.
+     */
+    public void init() {
         this.suchend = false; // Anfangs wird nicht nach einer Lösung gesucht
         this.erfolgreich = false; // Es wurde noch keine Lösung gefunden
         this.werte = new byte[9][9]; // Größe des Spielfelds festlegen
@@ -53,15 +56,19 @@ public class Spielbrett implements Serializable, Runnable {
         }
     }
 
-    // Beginnt die Suche nach einer Lösung
-    public synchronized void starteSuche() {
+    /**
+     * Beginnt die Suche nach einer Lösung.
+     */
+    public void starteSuche() {
         setSuchend(true); // Ab jetzt befindet sich das Model im Status "suchend"
         this.erfolgreich = sucheBelegung((byte) 0, (byte) 0); // Die Suche beginnt in Zeile 0 und Spalte 0
         setSuchend(false); // Die Suche ist abgeschlossen
     }
 
-    // Setzt den Wert für eine Position
-    public synchronized boolean setWerteAt(final byte zeile, final byte spalte, final byte wert) {
+    /**
+     * Setzt den Wert für eine Position.
+     */
+    public boolean setWerteAt(final byte zeile, final byte spalte, final byte wert) {
         // Prüfen, ob die Position korrekt ist
         if (zeile < 0 || zeile > 9 || spalte < 0 || spalte > 9) {
             return false;
@@ -77,8 +84,10 @@ public class Spielbrett implements Serializable, Runnable {
         return false; // Der Wert wurde nicht geändert
     }
 
-    // Entfernt die Möglichkeiten für eine Position, der Spalte, der Zeile und des Quadrats
-    private synchronized void setzeMoeglichkeiten(final byte zeile, final byte spalte, final byte wert, final boolean moeglich) {
+    /**
+     * Entfernt die Möglichkeiten für eine Position, der Spalte, der Zeile und des Quadrats.
+     */
+    private void setzeMoeglichkeiten(final byte zeile, final byte spalte, final byte wert, final boolean moeglich) {
         if (wert < 1) {
             return;
         }
@@ -91,8 +100,10 @@ public class Spielbrett implements Serializable, Runnable {
         this.moeglichkeitenQuadrat[zeileStart][spalteStart][wert - 1] = moeglich;
     }
 
-    // Prüft, ob ein Wert für eine Position möglich ist
-    private synchronized boolean istWertFuerPositionMoeglich(final byte zeile, final byte spalte, final byte wert) {
+    /**
+     * Prüft, ob ein Wert für eine Position möglich ist.
+     */
+    private boolean istWertFuerPositionMoeglich(final byte zeile, final byte spalte, final byte wert) {
         if (wert < 1) {
             return true;
         }
@@ -105,8 +116,10 @@ public class Spielbrett implements Serializable, Runnable {
                 && this.moeglichkeitenQuadrat[zeileStart][spalteStart][wert - 1];
     }
 
-    // Sucht eine Belegung für das Spielbrett; Die Parameter sind die Position, an der die Rekursion beginnt
-    private synchronized boolean sucheBelegung(final byte zeile, final byte spalte) {
+    /**
+     * Sucht eine Belegung für das Spielbrett; Die Parameter sind die Position, an der die Rekursion beginnt.
+     */
+    private boolean sucheBelegung(final byte zeile, final byte spalte) {
         final byte neueZeile = (byte) (zeile == 8 ? 0 : zeile + 1);
         final byte neueSpalte = (byte) (neueZeile == 0 ? spalte + 1 : spalte);
         // Falls die letzte Position erreicht wurde, wird abgebrochen
@@ -130,8 +143,10 @@ public class Spielbrett implements Serializable, Runnable {
         return false; // Gefundene Belegung war nicht korrekt
     }
 
-    // Zum Prüfen, ob das Spielbrett korrekt ausgefüllt wurde, muss nur noch geprüft werden, ob sich keine leeren Positionen mehr auf dem Spielbrett befinden
-    private synchronized boolean pruefeSpielbrett() {
+    /**
+     * Zum Prüfen, ob das Spielbrett korrekt ausgefüllt wurde, muss nur noch geprüft werden, ob sich keine leeren Positionen mehr auf dem Spielbrett befinden.
+     */
+    private boolean pruefeSpielbrett() {
         for (byte zeile = 0; zeile < 9; zeile++) {
             for (byte spalte = 0; spalte < 9; spalte++) {
                 if (this.werte[zeile][spalte] == -1) {
@@ -142,20 +157,23 @@ public class Spielbrett implements Serializable, Runnable {
         return true;
     }
 
-    // Da die Berechnung länger andauern kann, ist es sinnvoll sie in einen weiteren Thread auszulagern.
+    /**
+     * Da die Berechnung länger andauern kann, ist es sinnvoll sie in einen weiteren Thread auszulagern.
+     * Für JavaEE-Umgebung eher ungeeignet!
+     */
     @Override
-    public synchronized void run() {
+    public void run() {
         starteSuche();
     }
 
     /*
      * GETTER & SETTER
      */
-    public synchronized byte[][] getWerte() {
+    public byte[][] getWerte() {
         return this.werte;
     }
 
-    public synchronized void setWerte(final byte[][] werte) {
+    public void setWerte(final byte[][] werte) {
         this.werte = werte;
     }
 
